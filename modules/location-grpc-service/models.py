@@ -1,34 +1,27 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime
 
-from db import db  # noqa
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from shapely.geometry.point import Point
-from sqlalchemy import BigInteger, Column, Date, DateTime, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import BigInteger, Column, DateTime
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
+class Base(DeclarativeBase):
+    pass
 
-class Person(db.Model):
-    __tablename__ = "person"
-
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    company_name = Column(String, nullable=False)
-
-
-class Location(db.Model):
+class Location(Base):
     __tablename__ = "location"
     __allow_unmapped__ = True
 
-    id = Column(BigInteger, primary_key=True)
-    person_id = Column(Integer, ForeignKey(Person.id), nullable=False)
+    id: Mapped[BigInteger] = mapped_column(primary_key=True)
+    person_id: Mapped[int] = mapped_column(nullable=False)
     coordinate = Column(Geometry("POINT"), nullable=False)
-    creation_time = Column(DateTime, nullable=False, default=datetime.utcnow)
+    creation_time: Mapped[DateTime] = mapped_column(nullable=False, default=datetime.now(datetime.timezone.utc))
     _wkt_shape: str = None
 
     @property

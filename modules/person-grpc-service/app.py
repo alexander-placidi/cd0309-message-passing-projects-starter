@@ -1,4 +1,4 @@
-import time
+import time, os
 from concurrent import futures
 from typing import List
 
@@ -8,6 +8,7 @@ import person_pb2_grpc
 
 from services import PersonService
 from models import Person
+from config import config_by_name
 
 
 class PersonServicer(person_pb2_grpc.PersonServiceServicer):
@@ -57,9 +58,9 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
 person_pb2_grpc.add_PersonServiceServicer_to_server(PersonServicer(), server)
 
-
-print("Server starting on port 5005...")
-server.add_insecure_port("[::]:5005")
+grpc_port = config_by_name(os.getenv("FLASK_ENV") or "test")
+print(f"Server starting on port {grpc_port}...")
+server.add_insecure_port(f"[::]:{grpc_port}")
 server.start()
 # Keep thread alive
 try:

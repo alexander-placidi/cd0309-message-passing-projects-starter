@@ -26,7 +26,8 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-
+    GRPC_PORT = 5005
+    
 
 class TestingConfig(BaseConfig):
     CONFIG_NAME = "test"
@@ -37,6 +38,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
+    GRPC_PORT = 5005
 
 
 class ProductionConfig(BaseConfig):
@@ -48,7 +50,8 @@ class ProductionConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-
+    GRPC_PORT = 5005
+    
 
 EXPORT_CONFIGS: List[Type[BaseConfig]] = [
     DevelopmentConfig,
