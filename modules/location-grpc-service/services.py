@@ -19,56 +19,56 @@ engine = create_engine(config_by_name[env].SQLALCHEMY_DATABASE_URI)
 class LocationService:
     @staticmethod
     def retrieve(location_id) -> Location:
-        session = Session(engine)
-        location, coord_text = (
-            session.execute(select(Location, Location.coordinate.ST_AsText()))
-            .where(Location.id == location_id)
-            .first()
-        )
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            location, coord_text = (
+                session.execute(select(Location, Location.coordinate.ST_AsText()))
+                .where(Location.id == location_id)
+                .scalar_one()
+            )
+            # Rely on database to return text form of point to reduce overhead of conversion in app code
+            location.wkt_shape = coord_text
 
-        # Rely on database to return text form of point to reduce overhead of conversion in app code
-        location.wkt_shape = coord_text
         return location
     
     @staticmethod
     def retrieveByDateRange(*, person_id, start_date, end_date) -> List[Location]:
-        session = Session(engine)
-        locations = (
-            session.execute(select(Location))
-            .where(Location.person_id == person_id)
-            .where(Location.creation_time < end_date)
-            .where(Location.creation_time >= start_date)
-            .fetchall()
-        )
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            locations = (
+                session.execute(select(Location))
+                .where(Location.person_id == person_id)
+                .where(Location.creation_time < end_date)
+                .where(Location.creation_time >= start_date)
+                .scalars().all()
+            )
 
         return locations
     
     @staticmethod
     def retrieveWithin(*, person_id, longitude, latitude, meters, start_date, end_date) -> List[Location]:
-        session = Session(engine)
-        query = text(
-            """
-            SELECT  person_id, id, ST_X(coordinate), ST_Y(coordinate), creation_time
-            FROM    location
-            WHERE   ST_DWithin(coordinate::geography,ST_SetSRID(ST_MakePoint(:latitude,:longitude),4326)::geography, :meters)
-            AND     person_id != :person_id
-            AND     TO_DATE(:start_date, 'YYYY-MM-DD') <= creation_time
-            AND     TO_DATE(:end_date, 'YYYY-MM-DD') > creation_time;
-            """
-        )
-        params = {
-            person_id: person_id,
-            longitude: longitude,
-            latitude: latitude,
-            meters: meters,
-            start_date: start_date,
-            end_date: end_date
-        }
-        locations = session.execute(query, params)
-        session.close()
-
+        with Session(engine, expire_on_commit=False) as session:
+            query = text(
+                """
+                SELECT  person_id, id, ST_X(coordinate), ST_Y(coordinate), creation_time
+                FROM    location
+                WHERE   ST_DWithin(coordinate::geography,ST_SetSRID(ST_MakePoint(:latitude,:longitude),4326)::geography, :meters)
+                AND     person_id != :person_id
+                AND     TO_DATE(:start_date, 'YYYY-MM-DD') <= creation_time
+                AND     TO_DATE(:end_date, 'YYYY-MM-DD') > creation_time;
+                """
+            )
+            params = {
+                person_id: person_id,
+                longitude: longitude,
+                latitude: latitude,
+                meters: meters,
+                start_date: start_date,
+                end_date: end_date
+            }
+            locations = []
+            for location in session.execute(query, params).scalars().all():
+                location = location.set_wkt_with_coords(location.latitude, location.longitude)
+                locations.append(location)
+        
         return locations
 
     @staticmethod
@@ -83,9 +83,8 @@ class LocationService:
         new_location.creation_time = location["creation_time"]
         new_location.coordinate = ST_Point(location["latitude"], location["longitude"])
        
-        session = Session(engine)
-        session.add(new_location)
-        session.commit()
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            session.add(new_location)
+            session.commit()
 
         return new_location

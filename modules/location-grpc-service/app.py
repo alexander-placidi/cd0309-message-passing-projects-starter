@@ -31,7 +31,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
             end_date=request.end_date
         )
 
-        locations_message = location_pb2.LocationMessageList
+        locations_message = location_pb2.LocationMessageList()
         for location in locations:
             location_message = location_pb2.LocationMessage(
                 location_id=location.id,
@@ -40,7 +40,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
                 latitude=location.latitude,
                 creation_time=location.creation_time
             )
-            locations_message.locations.extend(location_message)
+            locations_message.locations.append(location_message)
 
         return locations_message 
 
@@ -55,7 +55,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
             end_date=request.end_date
         )
 
-        locations_message = location_pb2.LocationMessageList
+        locations_message = location_pb2.LocationMessageList()
         for location in locations:
             location_message = location_pb2.LocationMessage(
                 location_id=location.id,
@@ -64,7 +64,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
                 latitude=location.latitude,
                 creation_time=location.creation_time
             )
-            locations_message.locations.extend(location_message)
+            locations_message.locations.append(location_message)
 
         return locations_message
 
@@ -91,7 +91,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
 location_pb2_grpc.add_LocationServiceServicer_to_server(LocationServicer(), server)
 
-grpc_port = config_by_name(os.getenv("FLASK_ENV") or "test")
+grpc_port = config_by_name[os.getenv("FLASK_ENV") or "test"].GRPC_PORT
 print(f"Server starting on port {grpc_port}...")
 server.add_insecure_port(f"[::]:{grpc_port}")
 server.start()

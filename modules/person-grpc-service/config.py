@@ -6,6 +6,7 @@ DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_HOST = os.environ["DB_HOST"]
 DB_PORT = os.environ["DB_PORT"]
 DB_NAME = os.environ["DB_NAME"]
+GRPC_PORT = os.environ["GRPC_PORT"]
 
 
 class BaseConfig:
@@ -26,7 +27,7 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-    GRPC_PORT = 5005
+    GRPC_PORT = GRPC_PORT
     
 
 class TestingConfig(BaseConfig):
@@ -38,7 +39,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-    GRPC_PORT = 5005
+    GRPC_PORT = GRPC_PORT
 
 
 class ProductionConfig(BaseConfig):
@@ -50,7 +51,7 @@ class ProductionConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-    GRPC_PORT = 5005
+    GRPC_PORT = GRPC_PORT
     
 
 EXPORT_CONFIGS: List[Type[BaseConfig]] = [

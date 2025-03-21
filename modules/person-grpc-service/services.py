@@ -1,4 +1,4 @@
-import logging, os
+import logging, os, copy
 from typing import Dict, List
 
 from config import config_by_name
@@ -16,30 +16,28 @@ class PersonService:
     @staticmethod
     def create(person: Dict) -> Person:
         new_person = Person()
+        new_person.id = person["id"]
         new_person.first_name = person["first_name"]
         new_person.last_name = person["last_name"]
         new_person.company_name = person["company_name"]
 
-        session = Session(engine)
-        session.add(new_person)
-        session.commit()
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            session.add(new_person)
+            session.commit()
 
         return new_person
 
     @staticmethod
     def retrieve(person_id: int) -> Person:
-        session = Session(engine)
-        person = session.execute(select(Person).where(Person.id == person_id)).first()
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            person = session.execute(select(Person).where(Person.id == person_id)).scalar_one()
 
         return person
 
     @staticmethod
     def retrieve_all() -> List[Person]:
-        session = Session(engine)
-        persons = session.execute(select(Person)).fetchall()
-        session.close()
+        with Session(engine, expire_on_commit=False) as session:
+            persons = session.execute(select(Person)).scalars().all()
 
         return persons
     

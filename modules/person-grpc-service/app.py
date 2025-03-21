@@ -25,7 +25,7 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
 
     def GetPersons(self, request, context):
         persons: List[Person] = PersonService.retrieve_all()
-        persons_message = person_pb2.PersonMessageList
+        persons_message = person_pb2.PersonMessageList()
         for person in persons:
             person_message = person_pb2.PersonMessage(
                 person_id=person.id,
@@ -33,7 +33,7 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
                 last_name=person.last_name,
                 company_name=person.company_name
             )
-            persons_message.persons.extend(person_message)
+            persons_message.persons.append(person_message)
 
         return persons_message
 
@@ -48,7 +48,7 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
         person: Person = PersonService.create(person_request)
 
         return person_pb2.PersonMessage(
-            person_id=person.person_id,
+            person_id=person.id,
             first_name=person.first_name,
             last_name=person.last_name,
             company_name=person.company_name
@@ -58,7 +58,7 @@ class PersonServicer(person_pb2_grpc.PersonServiceServicer):
 server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
 person_pb2_grpc.add_PersonServiceServicer_to_server(PersonServicer(), server)
 
-grpc_port = config_by_name(os.getenv("FLASK_ENV") or "test")
+grpc_port = config_by_name[os.getenv("FLASK_ENV") or "test"].GRPC_PORT
 print(f"Server starting on port {grpc_port}...")
 server.add_insecure_port(f"[::]:{grpc_port}")
 server.start()

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
@@ -18,10 +18,10 @@ class Location(Base):
     __tablename__ = "location"
     __allow_unmapped__ = True
 
-    id: Mapped[BigInteger] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     person_id: Mapped[int] = mapped_column(nullable=False)
     coordinate = Column(Geometry("POINT"), nullable=False)
-    creation_time: Mapped[DateTime] = mapped_column(nullable=False, default=datetime.now(datetime.timezone.utc))
+    creation_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
     _wkt_shape: str = None
 
     @property

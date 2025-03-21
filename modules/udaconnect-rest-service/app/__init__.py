@@ -1,5 +1,9 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_restx import Api
+
 def create_app(env=None):
-    from config import config_by_name
+    from app.config import config_by_name
 
     app = Flask(__name__)
     app.config.from_object(config_by_name[env or "test"])

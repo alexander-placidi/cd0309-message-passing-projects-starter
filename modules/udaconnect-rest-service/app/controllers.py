@@ -1,12 +1,11 @@
 from datetime import datetime
 
-from app.udaconnect.models import Connection, Location, Person
-from app.udaconnect.schemas import (
+from app.schemas import (
     ConnectionSchema,
     LocationSchema,
     PersonSchema,
 )
-from app.udaconnect.services import ConnectionService, LocationService, PersonService
+from app.services import ConnectionService, LocationService, PersonService
 from flask import request
 from flask_accepts import accepts, responds
 from flask_restx import Namespace, Resource
@@ -26,14 +25,14 @@ api = Namespace("UdaConnect", description="Connections via geolocation.")  # noq
 class LocationResource(Resource):
     @accepts(schema=LocationSchema)
     @responds(schema=LocationSchema)
-    def post(self) -> Location:
+    def post(self) -> LocationSchema:
         request.get_json()
-        location: Location = LocationService.create(request.get_json())
+        location: LocationSchema = LocationService.create(request.get_json())
         return location
 
     @responds(schema=LocationSchema)
-    def get(self, location_id) -> Location:
-        location: Location = LocationService.retrieve(location_id)
+    def get(self, location_id) -> LocationSchema:
+        location: LocationSchema = LocationService.retrieve(location_id)
         return location
 
 
@@ -41,14 +40,14 @@ class LocationResource(Resource):
 class PersonsResource(Resource):
     @accepts(schema=PersonSchema)
     @responds(schema=PersonSchema)
-    def post(self) -> Person:
+    def post(self) -> PersonSchema:
         payload = request.get_json()
-        new_person: Person = PersonService.create(payload)
+        new_person: PersonSchema = PersonService.create(payload)
         return new_person
 
     @responds(schema=PersonSchema, many=True)
-    def get(self) -> List[Person]:
-        persons: List[Person] = PersonService.retrieve_all()
+    def get(self) -> List[PersonSchema]:
+        persons: List[PersonSchema] = PersonService.retrieve_all()
         return persons
 
 
@@ -56,8 +55,8 @@ class PersonsResource(Resource):
 @api.param("person_id", "Unique ID for a given Person", _in="query")
 class PersonResource(Resource):
     @responds(schema=PersonSchema)
-    def get(self, person_id) -> Person:
-        person: Person = PersonService.retrieve(person_id)
+    def get(self, person_id) -> PersonSchema:
+        person: PersonSchema = PersonService.retrieve(person_id)
         return person
 
 
