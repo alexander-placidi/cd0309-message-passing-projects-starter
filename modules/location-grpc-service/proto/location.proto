@@ -12,19 +12,11 @@ message LocationGetMessage {
     int32 location_id = 1;
 }
 
-message LocationGetFilteredByDateMessage {
+message LocationGetContactsMessage {
     int32 person_id = 1;
     string start_date = 2;
     string end_date = 3;
-}
-
-message LocationGetFilteredByRangeMessage {
-    int32 person_id = 1;
-    string longitude = 2;
-    string latitude = 3;
-    int32 meters = 4;
-    string start_date = 5;
-    string end_date = 6;
+    int32 meters = 4;  
 }
 
 message LocationMessageList {
@@ -34,6 +26,5 @@ message LocationMessageList {
 service LocationService {
     rpc Create(LocationMessage) returns (LocationMessage);
     rpc Get(LocationGetMessage) returns (LocationMessage);
-    rpc GetFilteredByDate(LocationGetFilteredByDateMessage) returns (LocationMessageList);
-    rpc GetLocationsWithin(LocationGetFilteredByRangeMessage) returns (LocationMessageList);
+    rpc GetContacts(LocationGetContactsMessage) returns (LocationMessageList);
 }

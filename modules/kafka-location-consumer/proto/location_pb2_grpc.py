@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import person_pb2 as person__pb2
+import location_pb2 as location__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in person_pb2_grpc.py depends on'
+        + f' but the generated code in location_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class PersonServiceStub(object):
+class LocationServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -35,23 +35,23 @@ class PersonServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/PersonService/Create',
-                request_serializer=person__pb2.PersonMessage.SerializeToString,
-                response_deserializer=person__pb2.PersonMessage.FromString,
+                '/LocationService/Create',
+                request_serializer=location__pb2.LocationMessage.SerializeToString,
+                response_deserializer=location__pb2.LocationMessage.FromString,
                 _registered_method=True)
-        self.GetPerson = channel.unary_unary(
-                '/PersonService/GetPerson',
-                request_serializer=person__pb2.PersonGetMessage.SerializeToString,
-                response_deserializer=person__pb2.PersonMessage.FromString,
+        self.Get = channel.unary_unary(
+                '/LocationService/Get',
+                request_serializer=location__pb2.LocationGetMessage.SerializeToString,
+                response_deserializer=location__pb2.LocationMessage.FromString,
                 _registered_method=True)
-        self.GetPersons = channel.unary_unary(
-                '/PersonService/GetPersons',
-                request_serializer=person__pb2.Empty.SerializeToString,
-                response_deserializer=person__pb2.PersonMessageList.FromString,
+        self.GetContacts = channel.unary_unary(
+                '/LocationService/GetContacts',
+                request_serializer=location__pb2.LocationGetContactsMessage.SerializeToString,
+                response_deserializer=location__pb2.LocationMessageList.FromString,
                 _registered_method=True)
 
 
-class PersonServiceServicer(object):
+class LocationServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Create(self, request, context):
@@ -60,45 +60,45 @@ class PersonServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPerson(self, request, context):
+    def Get(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPersons(self, request, context):
+    def GetContacts(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_PersonServiceServicer_to_server(servicer, server):
+def add_LocationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=person__pb2.PersonMessage.FromString,
-                    response_serializer=person__pb2.PersonMessage.SerializeToString,
+                    request_deserializer=location__pb2.LocationMessage.FromString,
+                    response_serializer=location__pb2.LocationMessage.SerializeToString,
             ),
-            'GetPerson': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPerson,
-                    request_deserializer=person__pb2.PersonGetMessage.FromString,
-                    response_serializer=person__pb2.PersonMessage.SerializeToString,
+            'Get': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get,
+                    request_deserializer=location__pb2.LocationGetMessage.FromString,
+                    response_serializer=location__pb2.LocationMessage.SerializeToString,
             ),
-            'GetPersons': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPersons,
-                    request_deserializer=person__pb2.Empty.FromString,
-                    response_serializer=person__pb2.PersonMessageList.SerializeToString,
+            'GetContacts': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetContacts,
+                    request_deserializer=location__pb2.LocationGetContactsMessage.FromString,
+                    response_serializer=location__pb2.LocationMessageList.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'PersonService', rpc_method_handlers)
+            'LocationService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('PersonService', rpc_method_handlers)
+    server.add_registered_method_handlers('LocationService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class PersonService(object):
+class LocationService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -115,9 +115,9 @@ class PersonService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/PersonService/Create',
-            person__pb2.PersonMessage.SerializeToString,
-            person__pb2.PersonMessage.FromString,
+            '/LocationService/Create',
+            location__pb2.LocationMessage.SerializeToString,
+            location__pb2.LocationMessage.FromString,
             options,
             channel_credentials,
             insecure,
@@ -129,7 +129,7 @@ class PersonService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPerson(request,
+    def Get(request,
             target,
             options=(),
             channel_credentials=None,
@@ -142,9 +142,9 @@ class PersonService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/PersonService/GetPerson',
-            person__pb2.PersonGetMessage.SerializeToString,
-            person__pb2.PersonMessage.FromString,
+            '/LocationService/Get',
+            location__pb2.LocationGetMessage.SerializeToString,
+            location__pb2.LocationMessage.FromString,
             options,
             channel_credentials,
             insecure,
@@ -156,7 +156,7 @@ class PersonService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPersons(request,
+    def GetContacts(request,
             target,
             options=(),
             channel_credentials=None,
@@ -169,9 +169,9 @@ class PersonService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/PersonService/GetPersons',
-            person__pb2.Empty.SerializeToString,
-            person__pb2.PersonMessageList.FromString,
+            '/LocationService/GetContacts',
+            location__pb2.LocationGetContactsMessage.SerializeToString,
+            location__pb2.LocationMessageList.FromString,
             options,
             channel_credentials,
             insecure,

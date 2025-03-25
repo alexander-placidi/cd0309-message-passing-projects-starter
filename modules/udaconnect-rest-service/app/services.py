@@ -1,178 +1,178 @@
-import logging
+import logging, os, json, grpc
 from datetime import datetime, timedelta
 from typing import Dict, List
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+from app.errors import log_grpc_error
 
-from app.schemas import ConnectionSchema, LocationSchema, PersonSchema
+from app.dataclasses import Person, Location, Connection
+from app.utils import str_to_datetime, datetime_to_str, location_protobuf_to_class, person_protobuf_to_class
+from app.config import config_by_name
 
-import grpc
 from proto import location_pb2
 from proto import location_pb2_grpc
 from proto import person_pb2
 from proto import person_pb2_grpc
 
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger("udaconnect-api")
 
-location_channel = grpc.insecure_channel("localhost:5005")
+config = config_by_name[os.getenv("FLASK_ENV") or "test"]
+
+location_channel = grpc.insecure_channel(f"{config.GRPC_LOCATION_SERVICE_HOST}:{config.GRPC_LOCATION_SERVICE_PORT}")
 location_stub = location_pb2_grpc.LocationServiceStub(location_channel)
-person_channel = grpc.insecure_channel("localhost:5005")
+
+person_channel = grpc.insecure_channel(f"{config.GRPC_PERSON_SERVICE_HOST}:{config.GRPC_PERSON_SERVICE_PORT}")
 person_stub = person_pb2_grpc.PersonServiceStub(person_channel)
+
+kafka_topic = config.KAFKA_TOPIC
+kafka_bootstrap_servers = config.KAFKA_BOOTSTRAP_SERVERS
+
+producer = KafkaProducer(
+    bootstrap_servers=kafka_bootstrap_servers, 
+    key_serializer=lambda k: k.encode('utf-8'),
+    value_serializer=lambda m: json.dumps(m).encode('utf-8')
+)
 
 class ConnectionService:
     @staticmethod
     def find_contacts(person_id: int, start_date: datetime, end_date: datetime, meters=5
-    ) -> List[ConnectionSchema]:
-        location_message = location_pb2.LocationGetFilteredByDateMessage(
+    ) -> List[Connection]:
+        location_message = location_pb2.LocationGetContactsMessage(
             person_id=person_id,
-            start_date=start_date,
-            end_date=end_date
-        )     
-        locations_within_date_range: List = location_stub.GetFilteredByDate(location_message)
-
-        # Cache all users in memory for quick lookup
-        def person_message_mapper(person_message):
-            person = PersonSchema()
-            person.person_id = person_message.person_id
-            person.first_name = person_message.first_name
-            person.last_name = person_message.last_name
-            person.comany_name = person_message.company_name
-
-            return person
+            start_date=start_date.strftime("%Y-%m-%d"),
+            end_date=end_date.strftime("%Y-%m-%d"),
+            meters=meters
+        )
         
-        person_map: Dict[str, PersonSchema] = {person_message.person_id: map(person_message_mapper, person_message) for person_message in person_stub.GetPersons().persons}
+        locations: List[location_pb2.LocationMessage] = []
+        try:
+            locations.append(location_stub.GetContacts(location_message).locations)
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)
 
-        # Prepare arguments for queries
-        data = []
-        for location in locations_within_date_range:
-            data.append(
-                {
-                    "person_id": person_id,
-                    "longitude": location.longitude,
-                    "latitude": location.latitude,
-                    "meters": meters,
-                    "start_date": start_date.strftime("%Y-%m-%d"),
-                    "end_date": (end_date + timedelta(days=1)).strftime("%Y-%m-%d"),
-                }
-            )
+        adjacent_locations: List[Location] = [location_protobuf_to_class(loc) for loc in locations]
 
-        result: List[ConnectionSchema] = []
-        for line in tuple(data):
-            location_message = location_pb2.LocationGetFilteredByRangeMessage(
-                person_id=line.get("person_id"),
-                longitude=line.get("longitude"),
-                latitude=line.get("latitude"),
-                meters=line.get("meters"),
-                start_date=line.get("start_date"),
-                end_date=line.get("end_date")
-            )
+        # Cache all users in memory for quick lookup                
+        persons: List[person_pb2.PersonMessage] = []
+        try:
+            persons.append(person_stub.GetPersons(person_pb2.Empty()).persons)
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)
+        
+        person_map: Dict[str, Person] = {person.id: person for person in map(person_protobuf_to_class, persons)}
+        
+        result: List[Connection] = []
             
-            for (
-                exposed_person_id,
-                location_id,
-                exposed_lat,
-                exposed_long,
-                exposed_time,
-            ) in location_stub.GetLocationsWithin(location_message).locations:
-                location = LocationSchema(
-                    id=location_id,
-                    person_id=exposed_person_id,
-                    longitude=exposed_long,
-                    latitude=exposed_lat,
-                    creation_time=exposed_time,
-                )
-
-                result.append(
-                    ConnectionSchema(
-                        person=person_map[exposed_person_id], location=location,
-                    )
-                )
+        for location in adjacent_locations:
+            result.append(Connection(
+                person=person_map[location.person_id],
+                location=location
+            ))
 
         return result
 
 
 class LocationService:
     @staticmethod
-    def retrieve(location_id) -> LocationSchema:
+    def retrieve(location_id) -> Location:
         location_message = location_pb2.LocationGetMessage(
-            location_id=location_id
-        )        
-        response = location_stub.Get(location_message)
-        location = LocationSchema()
-        location.id = response.location_id
-        location.person_id = response.person_id
-        location.longitude = response.longitude
-        location.latitude = response.latitude
-        location.creation_time = response.creation_time
+            location_id=int(location_id)
+        )
 
-        return location
+        response: location_pb2.LocationMessage
+        try:
+            response = location_stub.Get(location_message)
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)         
+
+        return Location(
+            id=response.location_id,
+            person_id=response.person_id,
+            longitude=response.longitude,
+            latitude=response.latitude,
+            creation_time=str_to_datetime(response.creation_time)
+        )
 
     @staticmethod
-    def create(location: Dict) -> LocationSchema:
-        validation_results: Dict = LocationSchema().validate(location)
-        if validation_results:
-            logger.warning(f"Unexpected data format in payload: {validation_results}")
-            raise Exception(f"Invalid payload: {validation_results}")
+    def create(location: Location) -> Location:
+        try:
+            producer.send(kafka_topic, key=str(location.id), value={
+                "id": location.id,
+                "person_id": location.person_id,
+                "longitude": location.longitude,
+                "latitude": location.latitude,
+                "creation_time": datetime_to_str(location.creation_time)
+            })
+            producer.flush()
+        except KafkaError as kafka_error:
+            logging.error(f"kafka producer error: {kafka_error}")
+            raise Exception(kafka_error)
 
-        location_message = location_pb2.LocationMessage(
-            location_id=location.get("id"),
-            person_id=location.get("person_id"),
-            longitude=location.get("longitude"),
-            latitude=location.get("latitude"),
-            creation_time=location.get("creation_time")
-        )
-        response = location_stub.Create(location_message)            
-        new_location = LocationSchema()
-        new_location.id = response.location_id
-        new_location.person_id = response.person_id
-        new_location.longitude = response.longitude
-        new_location.latitude = response.latitude
-        new_location.creation_time = response.creation_time
-
-        return new_location
+        return location
 
 
 class PersonService:
     @staticmethod
-    def create(person: Dict) -> PersonSchema:
+    def create(person: Person) -> Person:
         person_message = person_pb2.PersonMessage(
-            person_id=person.get("id"),
-            first_name=person.get("first_name"),
-            last_name=person.get("last_name"),
-            company_name=person.get("company_name")
+            person_id=person.id,
+            first_name=person.first_name,
+            last_name=person.last_name,
+            company_name=person.company_name
         )
-        response = person_stub.Create(person_message)
-        new_person = PersonSchema()
-        new_person.id = response.person_id
-        new_person.first_name = response.first_name
-        new_person.last_name = response.last_name
-        new_person.company_name = response.company_name
+        
+        response: person_pb2.PersonMessage
+        try: 
+            response = person_stub.Create(person_message)
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)     
 
-        return new_person
+        return Person(
+            id=response.person_id,
+            first_name=response.first_name,
+            last_name=response.last_name,
+            company_name=response.company_name
+        )
 
     @staticmethod
-    def retrieve(person_id: int) -> PersonSchema:
+    def retrieve(person_id: int) -> Person:
         person_message = person_pb2.PersonGetMessage(
             person_id=int(person_id),
         )
-        response = person_stub.GetPerson(person_message)
-        person = PersonSchema()
-        person.id = response.person_id
-        person.first_name = response.first_name
-        person.last_name = response.last_name
-        person.company_name = response.company_name
-
-        return person
+        
+        response: person_pb2.PersonMessage
+        try:
+            response = person_stub.GetPerson(person_message)
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)  
+        
+        return Person(
+            id=response.person_id,
+            first_name=response.first_name,
+            last_name=response.last_name,
+            company_name=response.company_name
+        )
 
     @staticmethod
-    def retrieve_all() -> List[PersonSchema]:
-        response = person_stub.GetPersons(person_pb2.Empty())
+    def retrieve_all() -> List[Person]:
+        response: List[person_pb2.PersonMessage] 
+        try:
+            response = person_stub.GetPersons(person_pb2.Empty())
+        except grpc.RpcError as rpc_error:
+            log_grpc_error(rpc_error)
+            raise Exception(rpc_error)
+         
         persons = []
         for person_message in response.persons:
-            person = PersonSchema()
-            person.id = person_message.person_id
-            person.first_name = person_message.first_name
-            person.last_name = person_message.last_name
-            person.company_name = person_message.company_name
-            persons.append(person)
+            persons.append(Person(
+                id=person_message.person_id,
+                first_name=person_message.first_name,
+                last_name=person_message.last_name,
+                company_name=person_message.company_name                
+            ))
 
         return persons

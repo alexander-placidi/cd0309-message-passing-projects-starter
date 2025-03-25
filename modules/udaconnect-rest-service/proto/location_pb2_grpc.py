@@ -44,14 +44,9 @@ class LocationServiceStub(object):
                 request_serializer=location__pb2.LocationGetMessage.SerializeToString,
                 response_deserializer=location__pb2.LocationMessage.FromString,
                 _registered_method=True)
-        self.GetFilteredByDate = channel.unary_unary(
-                '/LocationService/GetFilteredByDate',
-                request_serializer=location__pb2.LocationGetFilteredByDateMessage.SerializeToString,
-                response_deserializer=location__pb2.LocationMessageList.FromString,
-                _registered_method=True)
-        self.GetLocationsWithin = channel.unary_unary(
-                '/LocationService/GetLocationsWithin',
-                request_serializer=location__pb2.LocationGetFilteredByRangeMessage.SerializeToString,
+        self.GetContacts = channel.unary_unary(
+                '/LocationService/GetContacts',
+                request_serializer=location__pb2.LocationGetContactsMessage.SerializeToString,
                 response_deserializer=location__pb2.LocationMessageList.FromString,
                 _registered_method=True)
 
@@ -71,13 +66,7 @@ class LocationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetFilteredByDate(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetLocationsWithin(self, request, context):
+    def GetContacts(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -96,14 +85,9 @@ def add_LocationServiceServicer_to_server(servicer, server):
                     request_deserializer=location__pb2.LocationGetMessage.FromString,
                     response_serializer=location__pb2.LocationMessage.SerializeToString,
             ),
-            'GetFilteredByDate': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetFilteredByDate,
-                    request_deserializer=location__pb2.LocationGetFilteredByDateMessage.FromString,
-                    response_serializer=location__pb2.LocationMessageList.SerializeToString,
-            ),
-            'GetLocationsWithin': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetLocationsWithin,
-                    request_deserializer=location__pb2.LocationGetFilteredByRangeMessage.FromString,
+            'GetContacts': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetContacts,
+                    request_deserializer=location__pb2.LocationGetContactsMessage.FromString,
                     response_serializer=location__pb2.LocationMessageList.SerializeToString,
             ),
     }
@@ -172,7 +156,7 @@ class LocationService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetFilteredByDate(request,
+    def GetContacts(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,35 +169,8 @@ class LocationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/LocationService/GetFilteredByDate',
-            location__pb2.LocationGetFilteredByDateMessage.SerializeToString,
-            location__pb2.LocationMessageList.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def GetLocationsWithin(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/LocationService/GetLocationsWithin',
-            location__pb2.LocationGetFilteredByRangeMessage.SerializeToString,
+            '/LocationService/GetContacts',
+            location__pb2.LocationGetContactsMessage.SerializeToString,
             location__pb2.LocationMessageList.FromString,
             options,
             channel_credentials,

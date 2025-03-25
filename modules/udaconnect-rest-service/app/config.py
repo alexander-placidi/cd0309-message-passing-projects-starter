@@ -1,13 +1,17 @@
 import os
 from typing import List, Type
-
-GRPC_PERSON_SERVICE_PORT = os.environ["GRPC_PERSON_SERVICE_PORT"]
-GRPC_LOCATION_SERVICE_PORT = os.environ["GRPC_LOCATION_SERVICE_PORT"]
+from environs import env
 
 class BaseConfig:
     CONFIG_NAME = "base"
     USE_MOCK_EQUIVALENCY = False
     DEBUG = False
+    GRPC_PERSON_SERVICE_HOST = env("GRPC_PERSON_SERVICE_HOST")
+    GRPC_PERSON_SERVICE_PORT = env("GRPC_PERSON_SERVICE_PORT")
+    GRPC_LOCATION_SERVICE_HOST = env("GRPC_LOCATION_SERVICE_HOST")
+    GRPC_LOCATION_SERVICE_PORT = env("GRPC_LOCATION_SERVICE_PORT")
+    KAFKA_BOOTSTRAP_SERVERS = env.list("KAFKA_BOOTSTRAP_SERVERS")
+    KAFKA_TOPIC = env("KAFKA_TOPIC")
 
 
 class DevelopmentConfig(BaseConfig):
@@ -17,16 +21,13 @@ class DevelopmentConfig(BaseConfig):
     )
     DEBUG = True
     TESTING = False
-    GRPC_PERSON_SERVICE_PORT=GRPC_PERSON_SERVICE_PORT
-    GRPC_LOCATION_SERVICE_PORT=GRPC_LOCATION_SERVICE_PORT
+
 
 class TestingConfig(BaseConfig):
     CONFIG_NAME = "test"
     SECRET_KEY = os.getenv("TEST_SECRET_KEY", "Thanos did nothing wrong")
     DEBUG = True
     TESTING = True
-    GRPC_PERSON_SERVICE_PORT=GRPC_PERSON_SERVICE_PORT
-    GRPC_LOCATION_SERVICE_PORT=GRPC_LOCATION_SERVICE_PORT
 
 
 class ProductionConfig(BaseConfig):
@@ -34,8 +35,6 @@ class ProductionConfig(BaseConfig):
     SECRET_KEY = os.getenv("PROD_SECRET_KEY", "I'm Ron Burgundy?")
     DEBUG = False
     TESTING = False
-    GRPC_PERSON_SERVICE_PORT=GRPC_PERSON_SERVICE_PORT
-    GRPC_LOCATION_SERVICE_PORT=GRPC_LOCATION_SERVICE_PORT
 
 
 EXPORT_CONFIGS: List[Type[BaseConfig]] = [

@@ -1,10 +1,13 @@
 from datetime import datetime
+from typing import Dict
 
 from app.schemas import (
     ConnectionSchema,
     LocationSchema,
     PersonSchema,
 )
+from app.dataclasses import Person, Location, Connection
+
 from app.services import ConnectionService, LocationService, PersonService
 from flask import request
 from flask_accepts import accepts, responds
@@ -25,14 +28,14 @@ api = Namespace("UdaConnect", description="Connections via geolocation.")  # noq
 class LocationResource(Resource):
     @accepts(schema=LocationSchema)
     @responds(schema=LocationSchema)
-    def post(self) -> LocationSchema:
-        request.get_json()
-        location: LocationSchema = LocationService.create(request.get_json())
-        return location
+    def post(self) -> Location:
+        location = Location(**LocationSchema().load(request.get_json()))
+        new_location: Location = LocationService.create(location)
+        return new_location
 
     @responds(schema=LocationSchema)
-    def get(self, location_id) -> LocationSchema:
-        location: LocationSchema = LocationService.retrieve(location_id)
+    def get(self, location_id) -> Location:
+        location: Dict = LocationService.retrieve(location_id)
         return location
 
 
@@ -40,14 +43,14 @@ class LocationResource(Resource):
 class PersonsResource(Resource):
     @accepts(schema=PersonSchema)
     @responds(schema=PersonSchema)
-    def post(self) -> PersonSchema:
+    def post(self) -> Person:
         payload = request.get_json()
-        new_person: PersonSchema = PersonService.create(payload)
+        new_person: Person = PersonService.create(Person(**payload))
         return new_person
 
     @responds(schema=PersonSchema, many=True)
-    def get(self) -> List[PersonSchema]:
-        persons: List[PersonSchema] = PersonService.retrieve_all()
+    def get(self) -> List[Person]:
+        persons: List[Person] = PersonService.retrieve_all()
         return persons
 
 
@@ -55,8 +58,8 @@ class PersonsResource(Resource):
 @api.param("person_id", "Unique ID for a given Person", _in="query")
 class PersonResource(Resource):
     @responds(schema=PersonSchema)
-    def get(self, person_id) -> PersonSchema:
-        person: PersonSchema = PersonService.retrieve(person_id)
+    def get(self, person_id) -> Person:
+        person: Person = PersonService.retrieve(person_id)
         return person
 
 
@@ -66,7 +69,8 @@ class PersonResource(Resource):
 @api.param("distance", "Proximity to a given user in meters", _in="query")
 class ConnectionDataResource(Resource):
     @responds(schema=ConnectionSchema, many=True)
-    def get(self, person_id) -> ConnectionSchema:
+    def get(self, person_id) -> Connection:
+        
         start_date: datetime = datetime.strptime(
             request.args["start_date"], DATE_FORMAT
         )
@@ -74,9 +78,9 @@ class ConnectionDataResource(Resource):
         distance: Optional[int] = request.args.get("distance", 5)
 
         results = ConnectionService.find_contacts(
-            person_id=person_id,
+            person_id=int(person_id),
             start_date=start_date,
             end_date=end_date,
-            meters=distance,
+            meters=int(distance),
         )
         return results

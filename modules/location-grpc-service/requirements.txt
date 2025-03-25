@@ -5,3 +5,4 @@ shapely==2.0.*
 marshmallow==3.26.*
 marshmallow-sqlalchemy==1.4.*
 psycopg2-binary==2.9.*
+environs==14.1.*

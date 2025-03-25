@@ -1,19 +1,22 @@
 import os
 from typing import List, Type
+from environs import env
 
-DB_USERNAME = os.environ["DB_USERNAME"]
-DB_PASSWORD = os.environ["DB_PASSWORD"]
-DB_HOST = os.environ["DB_HOST"]
-DB_PORT = os.environ["DB_PORT"]
-DB_NAME = os.environ["DB_NAME"]
-GRPC_PORT = os.environ["GRPC_PORT"]
 
 class BaseConfig:
     CONFIG_NAME = "base"
     USE_MOCK_EQUIVALENCY = False
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    DB_USERNAME = env("DB_USERNAME")
+    DB_PASSWORD = env("DB_PASSWORD")
+    DB_HOST = env("DB_HOST")
+    DB_PORT = env("DB_PORT")
+    DB_NAME = env("DB_NAME")
+    GRPC_PORT = env("GRPC_PORT")
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
 
 class DevelopmentConfig(BaseConfig):
     CONFIG_NAME = "dev"
@@ -23,10 +26,6 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = False
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
-    GRPC_PORT = GRPC_PORT
     
 
 class TestingConfig(BaseConfig):
@@ -35,10 +34,6 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
-    GRPC_PORT = GRPC_PORT
 
 
 class ProductionConfig(BaseConfig):
@@ -47,10 +42,6 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = False
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
-    GRPC_PORT = GRPC_PORT
     
 
 EXPORT_CONFIGS: List[Type[BaseConfig]] = [
