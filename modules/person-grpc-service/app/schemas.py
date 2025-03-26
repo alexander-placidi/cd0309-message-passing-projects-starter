@@ -1,4 +1,4 @@
-from models import Person
+from app.models import Person
 from marshmallow import Schema, fields
 
 class PersonSchema(Schema):
@@ -6,6 +6,3 @@ class PersonSchema(Schema):
     first_name = fields.String()
     last_name = fields.String()
     company_name = fields.String()
-
-    class Meta:
-        model = Person

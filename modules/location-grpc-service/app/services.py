@@ -13,7 +13,7 @@ from app.session import session
 
 class LocationService:
     @staticmethod
-    def retrieve(location_id) -> Location:
+    def retrieve(location_id: int) -> Location:
         location= (
             session.execute(
                 select(Location, Location.coordinate.ST_AsText())

@@ -2,8 +2,8 @@ import json, grpc, os, logging
 from marshmallow import ValidationError, EXCLUDE
 from kafka import KafkaConsumer
 
-from schemas import LocationSchema
-from config import config_by_name
+from app.schemas import LocationSchema
+from app.config import config_by_name
 from proto import location_pb2
 from proto import location_pb2_grpc
 from app.errors import log_grpc_error

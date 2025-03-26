@@ -5,7 +5,7 @@ from app.consumer import subscribe
 def create_consumer(env=None):
     TOPIC_NAME = config_by_name[env or "test"].KAFKA_TOPIC
     BOOTSTRAP_SERVERS = config_by_name[env or "test"].KAFKA_BOOTSTRAP_SERVERS
-    CONSUMER_GROUP_ID = config_by_name[env or "test"].CONSUMER_GROUP_ID
+    CONSUMER_GROUP_ID = config_by_name[env or "test"].KAFKA_CONSUMER_GROUP_ID
     subscribe(TOPIC_NAME, BOOTSTRAP_SERVERS, CONSUMER_GROUP_ID)
 
 

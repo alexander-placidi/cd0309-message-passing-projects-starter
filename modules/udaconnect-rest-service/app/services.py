@@ -43,9 +43,9 @@ class ConnectionService:
             meters=meters
         )
         
-        locations: List[location_pb2.LocationMessage] = []
+        locations: List[location_pb2.LocationMessage]
         try:
-            locations.append(location_stub.GetContacts(location_message).locations)
+            locations = location_stub.GetContacts(location_message).locations
         except grpc.RpcError as rpc_error:
             log_grpc_error(rpc_error)
             raise Exception(rpc_error)
@@ -53,9 +53,9 @@ class ConnectionService:
         adjacent_locations: List[Location] = [location_protobuf_to_class(loc) for loc in locations]
 
         # Cache all users in memory for quick lookup                
-        persons: List[person_pb2.PersonMessage] = []
+        persons: List[person_pb2.PersonMessage]
         try:
-            persons.append(person_stub.GetPersons(person_pb2.Empty()).persons)
+            persons = person_stub.GetPersons(person_pb2.Empty()).persons
         except grpc.RpcError as rpc_error:
             log_grpc_error(rpc_error)
             raise Exception(rpc_error)

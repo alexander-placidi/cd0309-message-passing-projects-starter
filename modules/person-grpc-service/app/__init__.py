@@ -1,7 +1,7 @@
 import logging, sys, grpc, os
 from concurrent import futures
-from app.grpc_servicer import LocationServicer
-from proto import location_pb2_grpc
+from app.grpc_servicer import PersonServicer
+from proto import person_pb2_grpc
 from app.config import config_by_name
 
 
@@ -24,11 +24,11 @@ def config_logger():
 
 def create_server(env=None):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
-    location_pb2_grpc.add_LocationServiceServicer_to_server(LocationServicer(), server)
+    person_pb2_grpc.add_PersonServiceServicer_to_server(PersonServicer(), server)
 
     grpc_port = config_by_name[os.getenv("ENV") or "test"].GRPC_PORT
     logging.info(f"Server starting on port {grpc_port}...")
-
+    
     server.add_insecure_port(f"[::]:{grpc_port}")
     server.start()
     try:
