@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./modules/person-grpc-service
-          file: ./Dockerfile
+          file: ./modules/person-grpc-service/Dockerfile
           platforms: linux/amd64
           push: true
           tags: aplacidi/udac-person-grpc-service:latest
@@ -36,7 +36,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./modules/location-grpc-service
-          file: ./Dockerfile
+          file: ./modules/location-grpc-service/Dockerfile
           platforms: linux/amd64
           push: true
           tags: aplacidi/udac-location-grpc-service:latest
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./modules/kafka-location-consumer
-          file: ./Dockerfile
+          file: ./modules/kafka-location-consumer/Dockerfile
           platforms: linux/amd64
           push: true
           tags: aplacidi/udac-kafka-location-consumer:latest
@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./modules/udaconnect-rest-service
-          file: ./Dockerfile
+          file: ./modules/udaconnect-rest-service/Dockerfile
           platforms: linux/amd64
           push: true
           tags: aplacidi/udac-rest-service:latest
@@ -63,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./modules/frontend
-          file: ./Dockerfile
+          file: ./modules/frontend/Dockerfile
           platforms: linux/amd64
           push: true
           tags: aplacidi/udac-frontend:latest
