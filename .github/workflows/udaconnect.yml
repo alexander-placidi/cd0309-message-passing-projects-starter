@@ -1,4 +1,4 @@
-name: TechTrends - Package with Docker
+name: UdaConnect - Package with Docker
 on:
   push:
     branches: [ main ]
@@ -23,11 +23,47 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build and push - Person service
         uses: docker/build-push-action@v2
         with:
-          context: ./modules/person-service
+          context: ./modules/person-grpc-service
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
-          tags: aplacidi/udac-person-service:latest
+          tags: aplacidi/udac-person-grpc-service:latest
+      -
+        name: Build and push - Location Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./modules/location-grpc-service
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: aplacidi/udac-location-grpc-service:latest
+      -
+        name: Build and push - Kafka consumer
+        uses: docker/build-push-action@v2
+        with:
+          context: ./modules/kafka-location-consumer
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: aplacidi/udac-kafka-location-consumer:latest
+      -
+        name: Build and push - Flask Web service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./modules/udaconnect-rest-service
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: aplacidi/udac-rest-service:latest
+      -
+        name: Build and push - UdaConnect Frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: ./modules/frontend
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: aplacidi/udac-frontend:latest

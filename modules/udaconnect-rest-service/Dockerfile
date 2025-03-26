@@ -1,12 +1,15 @@
-FROM python:3.7-alpine
+FROM python:3.13
+LABEL maintainer="Alexander Placidi"
 
-WORKDIR .
+ENV SERVER_HOST "0.0.0.0"
+ENV SERVER_PORT "5000"
+
+COPY . /app
+WORKDIR /app
 
 RUN apk add --no-cache gcc musl-dev linux-headers geos libc-dev postgresql-dev
-COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-EXPOSE 5000
+EXPOSE 30001
 
-COPY . .
-CMD ["flask", "run", "--host", "0.0.0.0"]
+CMD ["flask", "run", "--host", ${SERVER_HOST}, "--port", ${SERVER_PORT}]
