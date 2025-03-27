@@ -1,0 +1,79 @@
+Documentation of the GRPC endpoints
+-----------------------------------
+Import the files person.proto and location.proto into Postman. 
+Please find sample requests for each endpoint below.
+
+create location
+--------------
+Description: Create a location record.
+
+localhost:30006 
+LocationService/Create
+
+{
+    "location_id": 71,
+    "person_id": 1,
+    "longitude": "37.553441",
+    "latitude": "-122.290524",
+    "creation_time": "2025-03-24T18:00:00"
+}
+
+get location
+------------
+Description: Get the location record with the specified id.
+
+localhost:30006
+LocationService/Get
+
+{
+    "location_id": 29
+}
+
+get adjacent locations
+-----------------------
+Description: Get all the locations, that occur within the specified date range
+and within the given radius of the person.
+
+localhost:30006
+LocationService/GetContacts
+
+{
+    "person_id": 1,
+    "start_date": "2020-01-01",
+    "end_date": "2020-12-31",
+    "meters": 5
+}
+
+get person
+----------
+Description: Get the person record with the specified id. 
+
+localhost:30005
+PersonService/GetPerson
+
+{
+    "person_id" : 1
+}
+
+get persons
+------------
+Description: Get all the person records.
+
+localhost:30005
+PersonService/GetPersons
+
+{}
+
+create person
+-------------
+Description: Create a person record. 
+
+localhost:30005
+PersonService/Create
+
+{
+    "person_id": 111,
+    "first_name": "Alexander",
+    "last_name": "Maximilian",
+    "company_name": "Telekom"
+}

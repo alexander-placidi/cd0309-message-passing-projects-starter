@@ -1,0 +1,23 @@
+Using REST
+------------
+
+We are expected to deploy a web frontend which displays persons and contacts. 
+The web application needs to fetch data from backend services in order to dispay them. 
+REST is a good choice here because it works well with web frameworks like React and it will be easier to add more functionalities in the future. 
+
+
+Using GRPC
+-----------
+In my design location and person data is passed with grpc between services, that are not customer-facing.
+Because it uses protobuf as serialization technique payloads are smaller and 
+communication will be faster, especially in a scenario where we expect a high amount of incoming requests.
+GRPC provides strict contracts and the generated code speeds up the implementation of services. 
+
+Using Kafka
+-----------
+
+Using Kafka enables the application to ingest high amounts of location data in a short period of time.
+Messages are put into a queue and can be consumed once the consumer is ready to accept new messages.
+That way the application will be able to respond and accept loction data even if the influx of data is high.
+With Kafka producers and consumers are decoupled from each other and new services can be added easily. 
+Data is persisted in topics temporarily and will be available even if a consumer fails. 
