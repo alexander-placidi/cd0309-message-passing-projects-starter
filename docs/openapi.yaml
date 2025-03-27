@@ -1,0 +1,250 @@
+openapi: 3.0.0
+info:
+  title: UdaConnect API
+  description: MVP UdaConnect. View persons and their connections from meeting and tradefairs. 
+  version: 1.0.0
+servers:
+  - url: http://localhost:30001/api
+paths:
+  /locations:
+    post:
+      tags:
+        - Locations
+      summary: Create a new location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+            examples:
+              example-1:
+                summary: Example Location
+                value:
+                  id: 70
+                  person_id: 1
+                  longitude: "37.553441"
+                  latitude: "-122.290524"
+                  creation_time: "2025-03-24 18:00:00"
+      responses:
+        '200':
+          description: Successful creation of Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Bad Request. The payload is invalid.
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+        - Locations
+      summary: Fetch location by ID
+      parameters:
+        - name: location_id
+          in: query
+          required: false
+          description: Unique ID for a given Location
+          example: 29
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval of Location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '500':
+          description: Internal Server Error
+
+  /persons:
+    post:
+      tags:
+        - Persons
+      summary: Create a new person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+            examples:
+              example-1:
+                summary: Example Person
+                value:
+                  id: 102
+                  first_name: Alexander
+                  last_name: Maximilian
+                  company_name: Telekom
+      responses:
+        '200':
+          description: Successfully created a Person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '404':
+          description: Bad Request. The payload is invalid.
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+        - Persons
+      summary: Get all persons
+      responses:
+        '200':
+          description: Successfully retrieved all persons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '500':
+          description: Internal Server Error
+
+  /persons/{person_id}:
+    get:
+      tags:
+        - Persons
+      summary: Get a person by ID
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          description: Unique ID for a given Person
+          example: 1
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully retrieved a Person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '500':
+          description: Internal Server Error
+
+  /persons/{person_id}/connection:
+    get:
+      tags:
+        - Connections
+      summary: Find contacts for a person within a date range and distance
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          description: Unique ID for the Person
+          example: 1
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          required: true
+          description: Lower bound of date range in YYYY-MM-DD format
+          example: "2020-01-01"
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: Upper bound of date range in YYYY-MM-DD format
+          example: "2020-12-31"
+          schema:
+            type: string
+            format: date
+        - name: distance
+          in: query
+          required: false
+          description: Proximity to a given user in meters (default is 5)
+          example: 5
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successfully found connections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Connection'
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    Location:
+      type: object
+      description: A geographic location
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the Location
+        person_id:
+          type: integer
+          description: The ID of the Person linked to this Location
+        longitude:
+          type: string
+          description: The longitude coordinate of the Location
+        latitude:
+          type: string
+          description: The latitude coordinate of the Location
+        creation_time:
+          type: string
+          format: date-time
+          description: Timestamp of when the location was created
+      required:
+        - id
+        - person_id
+        - longitude
+        - latitude
+        - creation_time
+    Person:
+      type: object
+      description: A person in the system
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the Person
+        first_name:
+          type: string
+          description: The first name of the Person
+        last_name:
+          type: string
+          description: The last name of the Person
+        company_name:
+          type: string
+          description: The organization or company the person is associated with
+      required:
+        - id
+        - first_name
+        - last_name
+        - company_name
+    Connection:
+      type: object
+      description: A relationship or interaction between a Person and a Location
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the Connection
+        person_id:
+          type: string
+          description: The ID of the Person connected to the Location
+        location_id:
+          type: string
+          description: The ID of the Location associated with the Person
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp of when the connection occurred
+      required:
+        - id
+        - person_id
+        - location_id
+        - created_at
