@@ -1,0 +1,123 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: kafka-pv-1
+  labels:
+    type: local
+    app: kafka-1
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 256Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/kafka-1"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: kafka-pv-2
+  labels:
+    type: local
+    app: kafka-2
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 256Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/kafka-2"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: kafka-pv-3
+  labels:
+    type: local
+    app: kafka-3
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 256Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/kafka-3"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: kafka-ui-pv
+  labels:
+    type: local
+    app: kafka-ui
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 128Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/kafka-ui"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka-pvc-1
+  labels:
+    app: kafka-1
+spec:
+  storageClassName: manual
+  volumeName: kafka-pv-1
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 256Mi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka-pvc-2
+  labels:
+    app: kafka-2
+spec:
+  storageClassName: manual
+  volumeName: kafka-pv-2
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 256Mi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka-pvc-3
+  labels:
+    app: kafka-3
+spec:
+  storageClassName: manual
+  volumeName: kafka-pv-3
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 256Mi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka-ui-pvc
+  labels:
+    app: kafka-ui
+spec:
+  storageClassName: manual
+  volumeName: kafka-ui-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 128Mi

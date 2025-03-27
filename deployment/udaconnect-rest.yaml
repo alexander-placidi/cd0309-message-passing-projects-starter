@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: udaconnect-api-np
+spec:
+  selector:
+    app: udaconnect-api  
+  ports:
+  - name: "np-5000"
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+    nodePort: 30001
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: udaconnect-api-svc
+spec:
+  selector:
+    app: udaconnect-api 
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: udaconnect-api-cfg
+data:
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "5000"
+  GRPC_PERSON_SERVICE_HOST: "person-service"
+  GRPC_PERSON_SERVICE_PORT: "5005"
+  GRPC_LOCATION_SERVICE_HOST: "location-service"
+  GRPC_LOCATION_SERVICE_PORT: "5006"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9092"
+  KAFKA_TOPIC: "udac-location-topic"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: udaconnect-api
+  name: udaconnect-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: udaconnect-api
+  template:
+    metadata:
+      labels:
+        app: udaconnect-api
+    spec:
+      containers:
+      - image: aplacidi/udac-rest-service:latest
+        name: udac-rest-service
+        imagePullPolicy: Always
+        env:
+        - name: SERVER_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: SERVER_HOST
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: SERVER_PORT
+        - name: GRPC_PERSON_SERVICE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: GRPC_PERSON_SERVICE_HOST
+        - name: GRPC_PERSON_SERVICE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: GRPC_PERSON_SERVICE_PORT
+        - name: GRPC_LOCATION_SERVICE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: GRPC_LOCATION_SERVICE_HOST
+        - name: GRPC_LOCATION_SERVICE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: GRPC_LOCATION_SERVICE_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: KAFKA_TOPIC
+          valueFrom:
+            configMapKeyRef:
+              name: udaconnect-api-cfg
+              key: KAFKA_TOPIC
+      restartPolicy: Always

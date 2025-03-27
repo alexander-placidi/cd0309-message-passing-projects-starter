@@ -1,0 +1,297 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-1
+  labels:
+    app: kafka-1
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka-1
+  template:
+    metadata:
+      labels:
+        app: kafka-1
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 9092
+          env:
+          - name: KAFKA_CFG_NODE_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_NODE_ID
+          - name: KAFKA_KRAFT_CLUSTER_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_KRAFT_CLUSTER_ID
+          - name: KAFKA_CFG_PROCESS_ROLES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_PROCESS_ROLES
+          - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          - name: KAFKA_CFG_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_LISTENERS
+          - name: KAFKA_CFG_ADVERTISED_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_ADVERTISED_LISTENERS  
+          - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-1
+                key: KAFKA_CFG_INTER_BROKER_LISTENER_NAME                                                       
+          volumeMounts:
+            - mountPath: /bitnami/kafka
+              name: kafka-pv
+              readOnly: false
+      volumes:
+        - name: kafka-pv
+          hostPath:
+            path: "/mnt/kafka/kafka-1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-2
+  labels:
+    app: kafka-2
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka-2
+  template:
+    metadata:
+      labels:
+        app: kafka-2
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 9094
+          env:
+          - name: KAFKA_CFG_NODE_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_NODE_ID
+          - name: KAFKA_KRAFT_CLUSTER_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_KRAFT_CLUSTER_ID
+          - name: KAFKA_CFG_PROCESS_ROLES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_PROCESS_ROLES
+          - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          - name: KAFKA_CFG_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_LISTENERS
+          - name: KAFKA_CFG_ADVERTISED_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_ADVERTISED_LISTENERS  
+          - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-2
+                key: KAFKA_CFG_INTER_BROKER_LISTENER_NAME                                                       
+          volumeMounts:
+            - mountPath: /bitnami/kafka
+              name: kafka-pv
+              readOnly: false
+      volumes:
+        - name: kafka-pv
+          hostPath:
+            path: "/mnt/kafka/kafka-2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-3
+  labels:
+    app: kafka-3
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka-3
+  template:
+    metadata:
+      labels:
+        app: kafka-3
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 9096
+          env:
+          - name: KAFKA_CFG_NODE_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_NODE_ID
+          - name: KAFKA_KRAFT_CLUSTER_ID
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_KRAFT_CLUSTER_ID
+          - name: KAFKA_CFG_PROCESS_ROLES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_PROCESS_ROLES
+          - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          - name: KAFKA_CFG_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_LISTENERS
+          - name: KAFKA_CFG_ADVERTISED_LISTENERS
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_ADVERTISED_LISTENERS  
+          - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-configmap-3
+                key: KAFKA_CFG_INTER_BROKER_LISTENER_NAME                                                       
+          volumeMounts:
+            - mountPath: /bitnami/kafka
+              name: kafka-pv
+              readOnly: false
+      volumes:
+        - name: kafka-pv
+          hostPath:
+            path: "/mnt/kafka/kafka-3"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ui
+  labels:
+    app: kafka-ui
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka-ui
+  template:
+    metadata:
+      labels:
+        app: kafka-ui
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: kafka-ui
+          image: ghcr.io/kafbat/kafka-ui:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 8080
+          env:
+          - name: DYNAMIC_CONFIG_ENABLED
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-ui-configmap
+                key: DYNAMIC_CONFIG_ENABLED
+          - name: KAFKA_CLUSTERS_0_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-ui-configmap
+                key: KAFKA_CLUSTERS_0_NAME
+          - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS 
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-ui-configmap
+                key: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS                                                    
+          volumeMounts:
+            - mountPath: /etc/kafkaui
+              name: kafka-ui-pv
+              readOnly: false
+      volumes:
+        - name: kafka-ui-pv
+          hostPath:
+            path: "/mnt/kafka/kafka-ui"
