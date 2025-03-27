@@ -1,14 +1,15 @@
-FROM python:3.13
+FROM python:3.13-alpine
 LABEL maintainer="Alexander Placidi"
 
-ENV SERVER_HOST "0.0.0.0"
-ENV SERVER_PORT "5000"
+ENV SERVER_HOST="0.0.0.0"
+ENV SERVER_PORT="30001"
 
-COPY . /app
-WORKDIR /app
+WORKDIR .
 
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 EXPOSE 30001
 
-CMD ["flask", "run", "--host", ${SERVER_HOST}, "--port", ${SERVER_PORT}]
+COPY . .
+CMD ["sh", "-c", "flask run --host $SERVER_HOST --port $SERVER_PORT"]
